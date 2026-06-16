@@ -10,7 +10,16 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    #### Добавьте шаг с Flyway-миграциями
+    - name: Apply migrations with Flyway
+      run: |
+        docker run --rm \
+          -v ${{ github.workspace }}/migrations:/flyway/sql \
+          flyway/flyway:10.1.0 \
+          -url=jdbc:postgresql://${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }} \
+          -user=${{ secrets.DB_USER }} \
+          -password=${{ secrets.DB_PASSWORD }} \
+          -connectRetries=10 \
+          migrate
 
     ### Этот шаг оставьте без изменений
     - name: Download and setup autotests binaries
