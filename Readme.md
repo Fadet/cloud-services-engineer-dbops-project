@@ -41,3 +41,19 @@ ALTER SCHEMA public OWNER TO dbops_user;
 - `order_product`.
 
 Миграция запускается в GitHub Actions через Flyway перед автотестами.
+
+## Нормализация
+
+Таблицы `product` и `product_info` частично дублировали друг друга: обе хранили идентификатор и название товара. Для нормализации в таблицу `product` добавлено поле `price`, после чего таблица `product_info` удаляется.
+
+Таблицы `orders` и `orders_date` также частично дублировали друг друга: обе хранили идентификатор и статус заказа. Для нормализации в таблицу `orders` добавлено поле `date_created`, после чего таблица `orders_date` удаляется.
+
+Миграция `V002__change_schema.sql` изменяет структуру базы:
+
+- добавляет `product.price`;
+- добавляет `orders.date_created`;
+- добавляет первичные ключи для `product` и `orders`;
+- добавляет связи `order_product.order_id -> orders.id` и `order_product.product_id -> product.id`;
+- удаляет неиспользуемые таблицы `product_info` и `orders_date`.
+
+Миграция `V003__insert_data.sql` заполняет нормализованные таблицы тестовыми данными.
